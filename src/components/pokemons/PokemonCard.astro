@@ -2,18 +2,19 @@
 import type { Result } from "../../interfaces/pokemons.interface";
 
 interface Props {
-	pokemon: Result;
+	name: string;
+	url: string;
 }
 
-const { pokemon } = Astro.props;
+const { name, url } = Astro.props;
 
-const pokemonId = pokemon.url.split("/").at(-2);
+const pokemonId = url.split("/").at(-2);
 
 const imageSrc = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemonId}.png`;
 
 ---
 
-<div class="bg-gray-200 p-4 rounded-2xl flex flex-col items-center">
-  <img src={imageSrc} alt={pokemon.name} />
-  <h2 class="text-2xl text-center text-gray-800">{pokemon.name}</h2>
-</div>
+<a href={`/pokemons/${name}`} class="bg-gray-200 p-4 rounded-2xl flex flex-col items-center">
+  <img src={imageSrc} alt={name} />
+  <h2 class="text-2xl text-center text-gray-800 capitalize">{name}</h2>
+</a>

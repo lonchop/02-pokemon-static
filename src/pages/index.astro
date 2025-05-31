@@ -14,7 +14,7 @@ const data = await response.json() as Pokemons
 ---
 
 <MainLayout title="Pokemon static | Home">
-	<h1 class="text-3xl text-center p-4">Pokemons List</h1>
+	<h1 class="text-3xl text-center mb-4">Pokemons List</h1>
 	<hr />
 
 	<section
@@ -23,7 +23,7 @@ const data = await response.json() as Pokemons
 	>
 		{
 			data.results.map((pokemon) => (
-				<PokemonCard pokemon={pokemon} />
+				<PokemonCard name={pokemon.name} url={pokemon.url} />
 			))
 		}
 	</section>
