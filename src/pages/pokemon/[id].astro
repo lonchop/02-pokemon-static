@@ -1,7 +1,7 @@
 ---
 import MainLayout from "@layouts/MainLayout.astro";
-import PokemonCard from "@components/pokemons/PokemonCard.astro";
 import type { Pokemons, Result } from "@interfaces/pokemons.interface";
+import PokemonCard from "@components/pokemons/PokemonCard.astro";
 
 export const getStaticPaths = async () => {
   
@@ -9,28 +9,21 @@ export const getStaticPaths = async () => {
   const { results } = await response.json() as Pokemons
   
   return results.map((pokemon: Result) => ({
-    params: { name: pokemon.name },
+    params: { id: pokemon.url.split("/").at(-2) },
     props: { name: pokemon.name, url: pokemon.url },
   }));
 };
 
-const { name } = Astro.params;
-const { url } = Astro.props;
+const { id } = Astro.params;
+const { name, url } = Astro.props;
 
-const pokemonId = url.split("/").at(-2);
-const audioSrc = `https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/${pokemonId}.ogg`;
-const imageSrc = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemonId}.png`;
-
+const audioSrc = `https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/${id}.ogg`;
 ---
 
-<MainLayout 
-  title={`Pokemon - #${pokemonId} ${name}`}
-  description={`Information about the pokemon - ${name}`}
-  image={imageSrc}
->
+<MainLayout title={name}>
   <section class="flex flex-col items-center justify-center">
     <div class="mb-4">
-      <a href={`/`} class="text-xl text-center capitalize text-blue-500">Regresar</a>
+      <a href="/" class="text-xl text-center capitalize text-blue-500">Regresar</a>
     </div>
       
       <PokemonCard name={name} url={url} isBig />

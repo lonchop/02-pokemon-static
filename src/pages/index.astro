@@ -1,32 +1,4 @@
 ---
-// Código Server side only - Momento de construcción Build time
-import MainLayout from "../layouts/MainLayout.astro";
-import type { Pokemons } from "../interfaces/pokemons.interface";
-import PokemonCard from "../components/pokemons/PokemonCard.astro";
-
-const apiUrl = "https://pokeapi.co/api/v2/pokemon";
-
-// Se puede usar await directamente
-const response = await fetch(apiUrl)
-const data = await response.json() as Pokemons
-
-
----
-
-<MainLayout title="Pokemon static | Home">
-	<h1 class="text-3xl text-center mb-4">Pokemons List</h1>
-	<hr />
-
-	<section
-		aria-label="Pokemons List"
-		class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4"
-	>
-		{
-			data.results.map((pokemon) => (
-				<PokemonCard name={pokemon.name} url={pokemon.url} />
-			))
-		}
-	</section>
-
-	
-</MainLayout>
+// Re-dirección a la primera página de pokemons
+return Astro.redirect('/pokemons/1');
+--- 
