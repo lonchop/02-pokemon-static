@@ -9,13 +9,50 @@ const links = [
     href: "/favorites"
   }
 ]
+
+const { pathname } = Astro.url;
 ---
 
 <nav class="bg-white dark:bg-slate-800">
   <div class="container flex items-center justify-center p-6 mx-auto text-gray-600 capitalize dark:text-gray-300">
+    
     {links.map((link) => (
-      <a href={link.href} class="text-gray-800 dark:text-gray-200 border-b-2 border-blue-500 mx-1.5 sm:mx-6">{link.label}</a>
+      <div>
+        <a
+          href={link.href}
+          class:list={[
+            "text-gray-800 dark:text-gray-200 mx-1.5 sm:mx-6",
+            // {
+            //   "border-b-2 border-blue-500": pathname === link.href,
+            // }
+        ]}
+        >
+            {link.label}
+        </a>
+        {
+          pathname === link.href && (
+            <div 
+              transition:name="menu-line"
+              class="active"
+            />
+          )
+        }
+      </div>
     ))}
+    
+    <!-- {links.map((link) => (
+      <a 
+        href={link.href} 
+        class:list={[
+          "text-gray-800 dark:text-gray-200 mx-1.5 sm:mx-6",
+          { 
+            "border-b-2 border-blue-500": pathname === link.href,
+          } 
+      ]}
+      >
+          {link.label}
+      </a>
+    ))} -->
 
       <!-- <a href="#" class="border-b-2 border-transparent hover:text-gray-800 dark:hover:text-gray-200 hover:border-blue-500 mx-1.5 sm:mx-6">pricing</a>
 
@@ -23,3 +60,10 @@ const links = [
 
   </div>
 </nav>
+
+<style>
+  @reference "tailwindcss";
+  .active {
+    @apply border-b-2 border-blue-500 mx-4;
+  }
+</style>

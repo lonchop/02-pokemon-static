@@ -3,6 +3,7 @@
 import MainLayout from "@layouts/MainLayout.astro";
 import type { Pokemons, Result } from "@interfaces/pokemons.interface";
 import PokemonCard from "@components/pokemons/PokemonCard.astro";
+import Title from "@components/shared/Title.astro";
 
 const apiUrl = "https://pokeapi.co/api/v2/pokemon";
 
@@ -89,8 +90,7 @@ console.log(page);
 ---
 
 <MainLayout title="Pokemon static | Home">
-	<h1 class="text-3xl text-center mb-4">Pokemons List</h1>
-	<hr />
+	<Title>Pokemons List</Title>
 
 	<section
 		aria-label="Pokemons List"

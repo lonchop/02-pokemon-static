@@ -2,6 +2,8 @@
 import MainLayout from "@layouts/MainLayout.astro";
 import PokemonCard from "@components/pokemons/PokemonCard.astro";
 import type { Pokemons, Result } from "@interfaces/pokemons.interface";
+import Title from "@components/shared/Title.astro";
+import { Icon } from "astro-icon/components";
 
 export const getStaticPaths = async () => {
   
@@ -29,9 +31,24 @@ const imageSrc = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprit
   image={imageSrc}
 >
   <section class="flex flex-col items-center justify-center">
-    <div class="mb-4">
-      <a href={`/`} class="text-xl text-center capitalize text-blue-500">Regresar</a>
+    <div class="flex items-center justify-between">
+      <div class="mb-4">
+        <button
+          onclick="history.back()"
+          class="cursor-pointer text-blue-500"
+        >
+          Regresar
+        </button>
+
+          <Title>{name}</Title>
+      </div>
+
+      <button class="btn-favorite" data-name={name} data-id={pokemonId}>
+        <Icon name="heart-outline" size={40} class="block" />
+        <Icon name="heart-filled" size={40} class="hidden" />
+      </button>
     </div>
+
       
       <PokemonCard name={name} url={url} isBig />
 
@@ -40,5 +57,34 @@ const imageSrc = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprit
       <p>Your browser does not support the audio element.</p>
     </audio>
   </section>
-
 </MainLayout>
+
+<script>
+  interface FavoritePokemon {
+    id: number;
+    name: string;
+  }
+
+  document.addEventListener("astro:page-load", () => {
+
+    const btnFavorite = document.querySelector(".btn-favorite") as HTMLButtonElement;
+
+    if (!btnFavorite) return;
+
+    const idPokemon = btnFavorite.dataset.id;
+    const namePokemon = btnFavorite.dataset.name;
+  
+    btnFavorite.addEventListener("click", () => {
+      console.log(idPokemon, namePokemon);
+    });
+  });
+
+  
+</script>
+
+<style>
+  @reference "tailwindcss";
+  .btn-favorite {
+    @apply cursor-pointer text-blue-500 ml-4 hover:animate-pulse transition-all duration-300;
+  }
+</style>
