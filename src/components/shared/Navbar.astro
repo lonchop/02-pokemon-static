@@ -2,72 +2,65 @@
 const links = [
   {
     label: "Pokemons list",
-    href: "/"
+    href: "/",
+    pattern: /^\/($|pokemons)/  // Coincide con "/" y "/pokemons/*"
   },
   {
     label: "Favorites",
-    href: "/favorites"
+    href: "/favorites",
+    pattern: /^\/favorites/
   },
   {
     label: "Islands",
-    href: "/islands"
+    href: "/islands",
+    pattern: /^\/islands/
   }
 ]
 
 const { pathname } = Astro.url;
+
+// Función para determinar si un link está activo
+const isActiveLink = (link: typeof links[0]) => {
+  if (link.href === "/" && pathname === "/") {
+    return true;
+  }
+  return link.pattern.test(pathname);
+};
 ---
 
 <nav class="bg-white dark:bg-slate-800">
   <div class="container flex items-center justify-center p-6 mx-auto text-gray-600 capitalize dark:text-gray-300">
     
-    {links.map((link) => (
-      <div>
-        <a
-          href={link.href}
-          class:list={[
-            "text-gray-800 dark:text-gray-200 mx-1.5 sm:mx-6",
-            // {
-            //   "border-b-2 border-blue-500": pathname === link.href,
-            // }
-        ]}
-        >
-            {link.label}
-        </a>
-        {
-          pathname === link.href && (
-            <div 
-              transition:name="menu-line"
+    {links.map((link, index) => {
+      const isActive = isActiveLink(link);
+      return (
+        <div class="relative">
+          <a
+            href={link.href}
+            class:list={[
+              "text-gray-800 dark:text-gray-200 mx-1.5 sm:mx-6 block pb-2",
+              // {
+              //   "text-blue-500": isActive
+              // }
+          ]}
+          >
+              {link.label}
+          </a>
+          {isActive && (
+            <div
+              transition:name="active"
               class="active"
             />
-          )
-        }
-      </div>
-    ))}
-    
-    <!-- {links.map((link) => (
-      <a 
-        href={link.href} 
-        class:list={[
-          "text-gray-800 dark:text-gray-200 mx-1.5 sm:mx-6",
-          { 
-            "border-b-2 border-blue-500": pathname === link.href,
-          } 
-      ]}
-      >
-          {link.label}
-      </a>
-    ))} -->
-
-      <!-- <a href="#" class="border-b-2 border-transparent hover:text-gray-800 dark:hover:text-gray-200 hover:border-blue-500 mx-1.5 sm:mx-6">pricing</a>
-
-      <a href="#" class="border-b-2 border-transparent hover:text-gray-800 dark:hover:text-gray-200 hover:border-blue-500 mx-1.5 sm:mx-6">blog</a> -->
-
+          )}
+        </div>
+      )
+    })}
   </div>
 </nav>
 
 <style>
   @reference "tailwindcss";
   .active {
-    @apply border-b-2 border-blue-500 mx-4;
+    @apply absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500 mx-1.5 sm:mx-6;
   }
 </style>
