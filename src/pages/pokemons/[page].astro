@@ -2,10 +2,8 @@
 // Código Server side only - Momento de construcción Build time
 import MainLayout from "@layouts/MainLayout.astro";
 import type { Pokemons, Result } from "@interfaces/pokemons.interface";
-import PokemonCard from "@components/pokemons/PokemonCard.astro";
 import Title from "@components/shared/Title.astro";
-
-const apiUrl = "https://pokeapi.co/api/v2/pokemon";
+import PokemonsList from "@components/pokemons/PokemonsList.astro";
 
 // Define la estructura de la página paginada proporcionada por paginate
 interface PaginatedPage<T> {
@@ -26,10 +24,6 @@ interface Props {
   page: PaginatedPage<Result>;
 }
 
-// Se puede usar await directamente
-const response = await fetch(apiUrl)
-const data = await response.json() as Pokemons
-
 export const getStaticPaths = async ({paginate}: { paginate: any }) => {
   const response = await fetch("https://pokeapi.co/api/v2/pokemon?limit=151")
   const { results } = await response.json() as Pokemons
@@ -39,147 +33,9 @@ export const getStaticPaths = async ({paginate}: { paginate: any }) => {
 
 // Desestructura page de Astro.props con el tipo definido
 const { page } = Astro.props as Props;
-
-// Preparar los elementos de paginación antes del JSX
-const preparePageNumbers = () => {
-  const pages = [];
-  const totalPages = page.lastPage;
-  const currentPage = page.currentPage;
-  
-  // Primera página
-  if (currentPage > 3) {
-    pages.push({
-      number: 1,
-      isCurrent: false,
-      href: `/pokemons/1`
-    });
-    
-    if (currentPage > 4) {
-      pages.push({ isEllipsis: true });
-    }
-  }
-  
-  // Páginas alrededor de la actual
-  for (let i = Math.max(1, currentPage - 1); i <= Math.min(totalPages, currentPage + 1); i++) {
-    pages.push({
-      number: i,
-      isCurrent: currentPage === i,
-      href: `/pokemons/${i}`
-    });
-  }
-  
-  // Última página
-  if (currentPage < totalPages - 2) {
-    if (currentPage < totalPages - 3) {
-      pages.push({ isEllipsis: true });
-    }
-    
-    pages.push({
-      number: totalPages,
-      isCurrent: false,
-      href: `/pokemons/${totalPages}`
-    });
-  }
-  
-  return pages;
-};
-
-const pageNumbers = preparePageNumbers();
-
-console.log(page);
 ---
 
 <MainLayout title="Pokemon static | Home">
 	<Title>Pokemons List</Title>
-
-	<section
-		aria-label="Pokemons List"
-		class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-4"
-	>
-		{
-			page.data.map(({name, url}) => (
-				<PokemonCard name={name} url={url} />
-			))
-		}
-	</section>
-
-  <section
-    class="flex justify-center items-center gap-1 sm:gap-2 mt-8 px-2"
-  >
-    {/* Botón para primera página */}
-    <a 
-      href={page.currentPage > 1 ? `/pokemons/1` : undefined}
-      class:list={[
-        "btn btn-small rounded-l-md",
-        { "disabled": page.currentPage === 1 },
-      ]}
-    >&laquo;</a>
-    
-    {/* Botón Anterior */}
-    <a 
-      href={page.url.prev}
-      class:list={[
-        "btn btn-small",
-        { "disabled": !page.url.prev },
-      ]}
-    >&lt;</a>
-    
-    {/* Páginas - Solo mostrar algunas en móvil */}
-    {pageNumbers.map((item, index) => 
-      item.isEllipsis ? (
-        <span class="px-1 sm:px-2 text-sm">...</span>
-      ) : (
-        <a 
-          href={item.href}
-          class:list={[
-            "btn btn-small",
-            { "bg-blue-700": item.isCurrent },
-            { "hidden sm:inline-block": pageNumbers.length > 5 && !item.isCurrent && item.number && Math.abs(item.number - page.currentPage) > 1 }
-          ]}
-        >{item.number}</a>
-      )
-    )}
-    
-    {/* Botón Siguiente */}
-    <a 
-      href={page.url.next}
-      class:list={[
-        "btn btn-small",
-        { "disabled": !page.url.next },
-      ]}
-    >&gt;</a>
-    
-    {/* Botón para última página */}
-    <a 
-      href={page.currentPage < page.lastPage ? `/pokemons/${page.lastPage}` : undefined}
-      class:list={[
-        "btn btn-small rounded-r-md",
-        { "disabled": page.currentPage === page.lastPage },
-      ]}
-    >&raquo;</a>
-  </section>
-
-	
+	<PokemonsList currentPage={page.currentPage} />
 </MainLayout>
-
-<style>
-  @reference "tailwindcss";
-
-  .btn {
-    @apply bg-blue-500 px-4 py-2 text-white rounded-md mx-1 hover:bg-blue-600 transition-colors;
-  }
-
-  .btn-small {
-    @apply bg-blue-500 px-3 py-1.5 text-white rounded-md mx-0.5 hover:bg-blue-600 transition-colors text-sm;
-  }
-
-  @media (min-width: 640px) {
-    .btn-small {
-      @apply px-3 py-2 mx-1 text-base;
-    }
-  }
-
-  .disabled {
-    @apply bg-gray-400 text-gray-200 cursor-not-allowed hover:bg-gray-400;
-  }
-</style>

@@ -1,4 +1,81 @@
 ---
-// Re-dirección a la primera página de pokemons
-return Astro.redirect('/pokemons/1');
---- 
+// Código Server side only - Momento de construcción Build time
+import MainLayout from "@layouts/MainLayout.astro";
+import type { Pokemons, Result } from "@interfaces/pokemons.interface";
+import PokemonCard from "@components/pokemons/PokemonCard.astro";
+import Title from "@components/shared/Title.astro";
+import PokemonsList from "@components/pokemons/PokemonsList.astro";
+
+const apiUrl = "https://pokeapi.co/api/v2/pokemon?limit=151";
+
+// Obtener todos los pokémons
+const response = await fetch(apiUrl);
+const data = await response.json() as Pokemons;
+
+// Configuración de paginación para la página principal
+const pageSize = 12;
+const currentPage = 1;
+const startIndex = (currentPage - 1) * pageSize;
+const endIndex = startIndex + pageSize;
+const totalPages = Math.ceil(data.results.length / pageSize);
+
+// Datos para la primera página
+const pageData = data.results.slice(startIndex, endIndex);
+
+// Preparar URLs de navegación
+const nextPageUrl = currentPage < totalPages ? `/pokemons/2` : undefined;
+
+// Preparar los elementos de paginación
+const preparePageNumbers = () => {
+  const pages = [];
+  const maxPagesToShow = 5;
+  
+  for (let i = 1; i <= Math.min(maxPagesToShow, totalPages); i++) {
+    pages.push({
+      number: i,
+      isCurrent: currentPage === i,
+      href: i === 1 ? `/` : `/pokemons/${i}`
+    });
+  }
+  
+  if (totalPages > maxPagesToShow) {
+    pages.push({ isEllipsis: true });
+    pages.push({
+      number: totalPages,
+      isCurrent: false,
+      href: `/pokemons/${totalPages}`
+    });
+  }
+  
+  return pages;
+};
+
+const pageNumbers = preparePageNumbers();
+---
+
+<MainLayout title="Pokemon static | Home">
+	<Title>Pokemons List</Title>
+	<PokemonsList currentPage={1} />
+</MainLayout>
+
+<style>
+  @reference "tailwindcss";
+
+  .btn {
+    @apply bg-blue-500 px-4 py-2 text-white rounded-md mx-1 hover:bg-blue-600 transition-colors;
+  }
+
+  .btn-small {
+    @apply bg-blue-500 px-3 py-1.5 text-white rounded-md mx-0.5 hover:bg-blue-600 transition-colors text-sm;
+  }
+
+  @media (min-width: 640px) {
+    .btn-small {
+      @apply px-3 py-2 mx-1 text-base;
+    }
+  }
+
+  .disabled {
+    @apply bg-gray-400 text-gray-200 cursor-not-allowed hover:bg-gray-400;
+  }
+</style> 

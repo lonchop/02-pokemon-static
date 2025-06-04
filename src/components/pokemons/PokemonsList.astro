@@ -1,0 +1,164 @@
+---
+import type { Pokemons, Result } from "@interfaces/pokemons.interface";
+import PokemonCard from "@components/pokemons/PokemonCard.astro";
+
+interface Props {
+  currentPage: number;
+  pageSize?: number;
+}
+
+const { currentPage = 1, pageSize = 12 } = Astro.props;
+
+const apiUrl = "https://pokeapi.co/api/v2/pokemon?limit=151";
+
+// Obtener todos los pokémons
+const response = await fetch(apiUrl);
+const data = await response.json() as Pokemons;
+
+// Configuración de paginación
+const startIndex = (currentPage - 1) * pageSize;
+const endIndex = startIndex + pageSize;
+const totalPages = Math.ceil(data.results.length / pageSize);
+
+// Datos para la página actual
+const pageData = data.results.slice(startIndex, endIndex);
+
+// Preparar URLs de navegación
+const prevPageUrl = currentPage > 1 ? (currentPage === 2 ? `/` : `/pokemons/${currentPage - 1}`) : undefined;
+const nextPageUrl = currentPage < totalPages ? `/pokemons/${currentPage + 1}` : undefined;
+
+// Preparar los elementos de paginación
+const preparePageNumbers = () => {
+  const pages = [];
+  const totalPagesNum = totalPages;
+  const current = currentPage;
+  
+  // Primera página
+  if (current > 3) {
+    pages.push({
+      number: 1,
+      isCurrent: false,
+      href: `/`
+    });
+    
+    if (current > 4) {
+      pages.push({ isEllipsis: true });
+    }
+  }
+  
+  // Páginas alrededor de la actual
+  for (let i = Math.max(1, current - 1); i <= Math.min(totalPagesNum, current + 1); i++) {
+    pages.push({
+      number: i,
+      isCurrent: current === i,
+      href: i === 1 ? `/` : `/pokemons/${i}`
+    });
+  }
+  
+  // Última página
+  if (current < totalPagesNum - 2) {
+    if (current < totalPagesNum - 3) {
+      pages.push({ isEllipsis: true });
+    }
+    
+    pages.push({
+      number: totalPagesNum,
+      isCurrent: false,
+      href: `/pokemons/${totalPagesNum}`
+    });
+  }
+  
+  return pages;
+};
+
+const pageNumbers = preparePageNumbers();
+---
+
+<section
+  aria-label="Pokemons List"
+  class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-4"
+>
+  {
+    pageData.map(({name, url}) => (
+      <PokemonCard name={name} url={url} />
+    ))
+  }
+</section>
+
+<section
+  class="flex justify-center items-center gap-1 sm:gap-2 mt-8 px-2"
+>
+  {/* Botón para primera página */}
+  <a 
+    href={currentPage > 1 ? `/` : undefined}
+    class:list={[
+      "btn btn-small rounded-l-md",
+      { "disabled": currentPage === 1 },
+    ]}
+  >&laquo;</a>
+  
+  {/* Botón Anterior */}
+  <a 
+    href={prevPageUrl}
+    class:list={[
+      "btn btn-small",
+      { "disabled": !prevPageUrl },
+    ]}
+  >&lt;</a>
+  
+  {/* Páginas - Solo mostrar algunas en móvil */}
+  {pageNumbers.map((item, index) => 
+    item.isEllipsis ? (
+      <span class="px-1 sm:px-2 text-sm">...</span>
+    ) : (
+      <a 
+        href={item.href}
+        class:list={[
+          "btn btn-small",
+          { "bg-blue-700": item.isCurrent },
+          { "hidden sm:inline-block": pageNumbers.length > 5 && !item.isCurrent && item.number && Math.abs(item.number - currentPage) > 1 }
+        ]}
+      >{item.number}</a>
+    )
+  )}
+  
+  {/* Botón Siguiente */}
+  <a 
+    href={nextPageUrl}
+    class:list={[
+      "btn btn-small",
+      { "disabled": !nextPageUrl },
+    ]}
+  >&gt;</a>
+  
+  {/* Botón para última página */}
+  <a 
+    href={currentPage < totalPages ? `/pokemons/${totalPages}` : undefined}
+    class:list={[
+      "btn btn-small rounded-r-md",
+      { "disabled": currentPage === totalPages },
+    ]}
+  >&raquo;</a>
+</section>
+
+<style>
+  @reference "tailwindcss";
+
+  .btn {
+    @apply bg-blue-500 px-4 py-2 text-white rounded-md mx-1 hover:bg-blue-600 transition-colors;
+  }
+
+  .btn-small {
+    @apply bg-blue-500 px-3 py-1.5 text-white rounded-md mx-0.5 hover:bg-blue-600 transition-colors text-sm;
+  }
+
+  @media (min-width: 640px) {
+    .btn-small {
+      @apply px-3 py-2 mx-1 text-base;
+    }
+  }
+
+  .disabled {
+    @apply bg-gray-400 text-gray-200 cursor-not-allowed hover:bg-gray-400;
+  }
+</style> 
