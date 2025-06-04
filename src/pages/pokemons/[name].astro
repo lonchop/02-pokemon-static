@@ -22,7 +22,6 @@ const { url } = Astro.props;
 const pokemonId = url.split("/").at(-2);
 const audioSrc = `https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/${pokemonId}.ogg`;
 const imageSrc = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemonId}.png`;
-
 ---
 
 <MainLayout 
@@ -44,8 +43,8 @@ const imageSrc = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprit
       </div>
 
       <button class="btn-favorite" data-name={name} data-id={pokemonId}>
-        <Icon name="heart-outline" size={40} class="block" />
-        <Icon name="heart-filled" size={40} class="hidden" />
+        <Icon data-outline name="heart-outline" size={40} />
+        <Icon data-filled name="heart-filled" size={40} class="hidden" />
       </button>
     </div>
 
@@ -65,21 +64,91 @@ const imageSrc = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprit
     name: string;
   }
 
-  document.addEventListener("astro:page-load", () => {
+  // // Se ejecuta antes de que Astro prepare el nuevo contenido para la navegación
+  // // Útil para limpiar estados, detener animaciones o preparar la página para el cambio
+  // document.addEventListener("astro:before-preparation", () => {
+  //   console.log("before preparation");
+  // });
 
+  // // Se ejecuta después de que Astro ha preparado el nuevo contenido pero antes de mostrarlo
+  // // Ideal para configurar el nuevo estado de la página o inicializar componentes
+  // document.addEventListener("astro:after-preparation", () => {
+  //   console.log("after preparation");
+  // });
+
+  // // Se ejecuta justo antes de que Astro intercambie el contenido de la página anterior por el nuevo
+  // // Perfecto para guardar el estado actual o ejecutar animaciones de salida
+  // document.addEventListener("astro:before-swap", () => {
+  //   console.log("before swap");
+  // });
+
+  // // Se ejecuta después de que Astro ha intercambiado el contenido de la página
+  // // Ideal para re-inicializar JavaScript, aplicar estilos o ejecutar animaciones de entrada
+  // document.addEventListener("astro:after-swap", () => {
+  //   console.log("after swap");
+  // });
+
+  const handlePageLoad = () => {
+    // Cargar favoritos desde localStorage
+    let favoritePokemons: FavoritePokemon[] = JSON.parse(localStorage.getItem("favorite-pokemons") || "[]");
+    console.log("Pokemons favoritos:", favoritePokemons);
+
+    // Buscar el botón de favoritos en la página actual
     const btnFavorite = document.querySelector(".btn-favorite") as HTMLButtonElement;
 
+    // Verificar que el botón existe (importante para evitar errores)
     if (!btnFavorite) return;
 
-    const idPokemon = btnFavorite.dataset.id;
-    const namePokemon = btnFavorite.dataset.name;
-  
-    btnFavorite.addEventListener("click", () => {
-      console.log(idPokemon, namePokemon);
-    });
-  });
+    const idPokemon = btnFavorite.dataset.id ?? "";
+    const namePokemon = btnFavorite.dataset.name ?? "";
+    
+    // Verificar si el pokemon ya es favorito
+    const isFavorite = favoritePokemons.some((pokemon) => pokemon.name === namePokemon);
 
-  
+    const heartOutline = btnFavorite.querySelector("[data-outline]") as HTMLElement;
+    const heartFilled = btnFavorite.querySelector("[data-filled]") as HTMLElement;
+
+    // Configurar estado inicial de los corazones
+    if (isFavorite) {
+      // Si es favorito: mostrar corazón lleno, ocultar vacío
+      heartOutline.classList.add("hidden");
+      heartFilled.classList.remove("hidden");
+    }
+
+    const toggleFavorite = () => {
+      const isFavorite = favoritePokemons.some((pokemon) => pokemon.name === namePokemon);
+
+      if (isFavorite) {
+        // Remover de favoritos
+        favoritePokemons = favoritePokemons.filter((pokemon) => pokemon.name !== namePokemon);
+      } else {
+        // Agregar a favoritos
+        favoritePokemons.push({ 
+          id: +idPokemon, 
+          name: namePokemon 
+        });
+      }
+
+      // Guardar en localStorage después de modificar el array
+      localStorage.setItem("favorite-pokemons", JSON.stringify(favoritePokemons));
+      
+      // Retornar el nuevo estado
+      return !isFavorite;
+    }
+
+    btnFavorite.addEventListener("click", () => {
+      // Cambiar la UI
+      heartOutline.classList.toggle("hidden");
+      heartFilled.classList.toggle("hidden");
+
+      // Actualizar el estado en localStorage
+      toggleFavorite();
+    });
+  }
+
+  // Se ejecuta al final del proceso de navegación, cuando la página está completamente cargada y visible
+  // Es el momento ideal para re-inicializar JavaScript, event listeners y cualquier funcionalidad interactiva
+  document.addEventListener("astro:page-load", handlePageLoad);
 </script>
 
 <style>

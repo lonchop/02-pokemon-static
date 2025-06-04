@@ -104,13 +104,13 @@ console.log(page);
 	</section>
 
   <section
-    class="flex justify-center items-center gap-2 mt-8"
+    class="flex justify-center items-center gap-1 sm:gap-2 mt-8 px-2"
   >
     {/* Botón para primera página */}
     <a 
       href={page.currentPage > 1 ? `/pokemons/1` : undefined}
       class:list={[
-        "btn rounded-l-md",
+        "btn btn-small rounded-l-md",
         { "disabled": page.currentPage === 1 },
       ]}
     >&laquo;</a>
@@ -119,21 +119,22 @@ console.log(page);
     <a 
       href={page.url.prev}
       class:list={[
-        "btn",
+        "btn btn-small",
         { "disabled": !page.url.prev },
       ]}
     >&lt;</a>
     
-    {/* Páginas */}
-    {pageNumbers.map(item => 
+    {/* Páginas - Solo mostrar algunas en móvil */}
+    {pageNumbers.map((item, index) => 
       item.isEllipsis ? (
-        <span class="px-2">...</span>
+        <span class="px-1 sm:px-2 text-sm">...</span>
       ) : (
         <a 
           href={item.href}
           class:list={[
-            "btn",
-            { "bg-blue-700": item.isCurrent }
+            "btn btn-small",
+            { "bg-blue-700": item.isCurrent },
+            { "hidden sm:inline-block": pageNumbers.length > 5 && !item.isCurrent && item.number && Math.abs(item.number - page.currentPage) > 1 }
           ]}
         >{item.number}</a>
       )
@@ -143,7 +144,7 @@ console.log(page);
     <a 
       href={page.url.next}
       class:list={[
-        "btn",
+        "btn btn-small",
         { "disabled": !page.url.next },
       ]}
     >&gt;</a>
@@ -152,7 +153,7 @@ console.log(page);
     <a 
       href={page.currentPage < page.lastPage ? `/pokemons/${page.lastPage}` : undefined}
       class:list={[
-        "btn rounded-r-md",
+        "btn btn-small rounded-r-md",
         { "disabled": page.currentPage === page.lastPage },
       ]}
     >&raquo;</a>
@@ -166,6 +167,16 @@ console.log(page);
 
   .btn {
     @apply bg-blue-500 px-4 py-2 text-white rounded-md mx-1 hover:bg-blue-600 transition-colors;
+  }
+
+  .btn-small {
+    @apply bg-blue-500 px-3 py-1.5 text-white rounded-md mx-0.5 hover:bg-blue-600 transition-colors text-sm;
+  }
+
+  @media (min-width: 640px) {
+    .btn-small {
+      @apply px-3 py-2 mx-1 text-base;
+    }
   }
 
   .disabled {
