@@ -1,7 +1,12 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 
-const count = ref(0);
+interface Props {
+  initValue: number;
+}
+const props = defineProps<Props>();
+
+const count = ref(props.initValue);
 
 const decrement = () => {
   count.value--;
@@ -14,7 +19,10 @@ const increment = () => {
 </script>
 
 <template>
-  <h1 class="text-4xl font-bold">Counter</h1>
+
+  <!-- Children -->
+  <slot />
+
   <p class="text-2xl">Count: {{ count }}</p>
 
   <div class="flex flex-row gap-2">

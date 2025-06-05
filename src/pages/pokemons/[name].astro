@@ -59,10 +59,7 @@ const imageSrc = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprit
 </MainLayout>
 
 <script>
-  interface FavoritePokemon {
-    id: number;
-    name: string;
-  }
+  import type { FavoritePokemon } from "@interfaces/favorite-pokemons";
 
   // // Se ejecuta antes de que Astro prepare el nuevo contenido para la navegación
   // // Útil para limpiar estados, detener animaciones o preparar la página para el cambio

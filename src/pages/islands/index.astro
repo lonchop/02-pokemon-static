@@ -2,10 +2,12 @@
 import Title from "@components/shared/Title.astro";
 import MainLayout from "@layouts/MainLayout.astro";
 import CounterVue from "@components/CounterVue.vue";
+
+const counterValue = 10;
 ---
 
 <MainLayout title="Favorites">
-  <Title>Islas</Title>
+  <Title>Islands</Title>
 
   <div
     style={{
@@ -16,5 +18,13 @@ import CounterVue from "@components/CounterVue.vue";
   >
   </div>
 
-  <CounterVue client:visible />
+  <CounterVue
+  transition:persist="counter"
+  transition:persist-props
+  client:visible
+  initValue={counterValue}
+  >
+  <h1 class="text-4xl font-bold">Counter Island</h1>
+  </CounterVue>
+
 </MainLayout>
